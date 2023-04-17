@@ -10,7 +10,7 @@ export default function Home() {
 
   useEffect(() => {
     // Load token data
-    fetch('https://api.coronavirus.data.gov.uk/v1/data?filters=areaType=nation;areaName=england&structure={"date":"date","newCases":"newCasesByPublishDate","newDeaths28DaysByDeathDate":"newDeaths28DaysByDeathDate"}')
+    fetch('https://api.coronavirus.data.gov.uk/v1/data?filters=areaType=nation;areaName=england&structure={"date":"date","newCases":"newCasesByPublishDate","newDeaths28DaysByDeathDate":"newDeaths28DaysByDeathDate","newReinfectionsBySpecimenDate":"newReinfectionsBySpecimenDate"}')
         .then((res) => res.json())
         .then((data) => {
           console.log(data.data);
@@ -20,8 +20,8 @@ export default function Home() {
 
   useEffect(() => {
     const ctx = document.getElementById('lineChart').getContext('2d');
-    const filteredData = [];
-    const myChart = new Chart(ctx, {
+    const ctx2 = document.getElementById('barChart').getContext('2d');
+    new Chart(ctx, {
       type: 'line',
       data: {
         labels: covidData.map(item => (
@@ -39,42 +39,25 @@ export default function Home() {
         ]
       },
     });
-  }, [covidData]);
 
-  useEffect(() => {
-    const ctx = document.getElementById('barChart').getContext('2d');
-    const myChart = new Chart(ctx, {
+    new Chart(ctx2, {
       type: 'bar',
       data: {
-        labels: ["Unvaccinated", "1st dose", "2nd dose"],
+        labels: covidData.map(item => (
+            item.date
+        )),
         datasets: [{
-          data: [70, 10, 6],
-          borderColor: [
-            "rgb(75, 192, 192)",
-            "rgb(255, 205, 86)",
-            "rgb(255, 99, 132)",
-          ],
-          backgroundColor: [
-            "rgb(75, 192, 192 )",
-            "rgb(255, 205, 86)",
-            "rgb(255, 99, 132)",
-          ],
-          borderWidth: 2,
+          data: covidData.map(item => (
+              item.newReinfectionsBySpecimenDate
+          )),
+          label: "New reinfections by date",
+          borderColor: "rgb(109, 253, 181)",
+          backgroundColor: "rgb(109, 253, 181,0.5)",
+          borderWidth: 2
         }]
       },
-      options: {
-        scales: {
-          xAxes: [{
-            display: false,
-          }],
-          yAxes: [{
-            display: false,
-          }],
-        }
-      },
-
     });
-  }, []);
+  }, [covidData]);
 
   return (
     <MainLayout>
@@ -106,7 +89,7 @@ export default function Home() {
             </Card>
           </Col>
           <Col span={12}>
-            <Card title="People tested positive in England"
+            <Card title="People reinfect by day in England"
               actions={[
                 <Avatar key={'avatar'} size={25} src={<Image src="./avatar.webp" alt="avatar" />} />,
                 <AlignLeftOutlined key="notes" />,
